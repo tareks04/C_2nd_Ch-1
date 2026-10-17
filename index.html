@@ -1,0 +1,696 @@
+﻿<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>পরিবেশ রসায়ন (C-01)</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Font: Hind Siliguri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        bangla: ['Hind Siliguri', 'sans-serif'],
+                    },
+                    colors: {
+                        deep: {
+                            bg: '#060913',
+                            surface: '#0d1322',
+                            card: '#131b2e',
+                            border: '#1e293b',
+                            accent: '#6366f1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #060913;
+            color: #f1f5f9;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Glassmorphism Styling */
+        .glass-card {
+            background: rgba(19, 27, 46, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glow-indigo {
+            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.25);
+        }
+
+        .glow-emerald {
+            box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Smooth Transitions */
+        .animated-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-[#060913] text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Top Fixed Header -->
+    <header class="sticky top-0 z-40 glass-card border-b border-slate-800 shadow-xl">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center font-bold text-xl shadow-lg text-white">
+                    💀
+                </div>
+                <div>
+                    <h1 class="text-base md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 leading-tight">
+                        পরিবেশ রসায়ন
+                    </h1>
+                    <p class="text-xs text-slate-400">রসায়ন দ্বিতীয় পত্র (C-01)</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2">
+                <button onclick="confirmReset()" class="animated-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs md:text-sm font-medium bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>রিসেট (Reset)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="w-full bg-slate-950 h-1.5">
+            <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 h-1.5 transition-all duration-300 w-0"></div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="max-w-6xl mx-auto w-full px-4 py-6 md:py-8 flex-grow">
+
+        <!-- Live Statistics Grid -->
+        <div id="stats-strip" class="mb-6 grid grid-cols-3 gap-3">
+            <div class="glass-card p-3 rounded-2xl text-center border border-slate-800">
+                <span class="text-xs text-slate-400 block mb-0.5">মোট প্রশ্ন</span>
+                <span id="stat-total" class="text-lg md:text-2xl font-bold text-indigo-400">0</span>
+            </div>
+            <div class="glass-card p-3 rounded-2xl text-center border border-slate-800">
+                <span class="text-xs text-slate-400 block mb-0.5">উত্তর প্রদান</span>
+                <span id="stat-answered" class="text-lg md:text-2xl font-bold text-amber-400">0</span>
+            </div>
+            <div class="glass-card p-3 rounded-2xl text-center border border-slate-800">
+                <span class="text-xs text-slate-400 block mb-0.5">বর্তমান স্কোর</span>
+                <span id="stat-score" class="text-lg md:text-2xl font-bold text-emerald-400">0</span>
+            </div>
+        </div>
+
+        <!-- Question Quick Navigator -->
+        <div class="mb-6 glass-card p-3.5 rounded-2xl border border-slate-800">
+            <div class="flex justify-between items-center mb-2.5 px-1">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">প্রশ্ন নেভিগেটর</span>
+                <span id="completion-tag" class="text-xs text-indigo-400 font-semibold bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20">0% সম্পন্ন</span>
+            </div>
+            <div id="nav-grid" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+                <!-- Navigation buttons generated by JS -->
+            </div>
+        </div>
+
+        <!-- Quiz card + bookmarks sidebar -->
+        <div id="quiz-bookmark-layout" class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-5 items-start mb-6">
+        <!-- Main Quiz Question Card -->
+        <div id="quiz-card" class="glass-card rounded-3xl p-5 md:p-8 border border-slate-800 glow-indigo relative transition-all">
+            
+            <!-- Question Meta Header -->
+            <div class="flex flex-wrap justify-between items-center gap-3 mb-4 pb-3 border-b border-slate-800/80">
+                <span id="question-badge" class="px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-bold rounded-full">
+                    প্রশ্ন ১ / ০
+                </span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs text-slate-400 bg-slate-900/80 px-3 py-1 rounded-full border border-slate-800">পরিবেশ রসায়ন (C-01)</span>
+                    <button id="bookmark-current-btn" onclick="toggleCurrentBookmark()" aria-pressed="false" class="animated-btn px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 border border-amber-500/30">☆ বুকমার্ক করুন</button>
+                </div>
+            </div>
+
+            <!-- Question Title -->
+            <h2 id="question-text" class="text-lg md:text-2xl font-bold text-slate-100 mb-6 leading-relaxed">
+                কোনো প্রশ্ন লোড করা হয়নি।
+            </h2>
+
+            <!-- MCQ Options Container -->
+            <div id="options-container" class="space-y-3 mb-6">
+                <!-- Options injected by JS -->
+            </div>
+
+            <!-- Instant Fact & Explanation Box (Shown after answering) -->
+            <div id="rationale-box" class="hidden mb-6 p-4 rounded-2xl border transition-all text-sm leading-relaxed">
+                <div id="rationale-title" class="font-bold mb-1 flex items-center gap-2 text-base">
+                    <!-- Icon + Title -->
+                </div>
+                <p id="rationale-text" class="text-slate-300"></p>
+            </div>
+
+            <!-- Footer Navigation Controls -->
+            <div class="flex justify-between items-center pt-4 border-t border-slate-800/80">
+                <button id="prev-btn" onclick="navigateQuestion(-1)" class="animated-btn px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700/60 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1">
+                    ← পূর্ববর্তী
+                </button>
+                <button id="next-btn" onclick="navigateQuestion(1)" class="animated-btn px-6 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/30 flex items-center gap-1">
+                    পরবর্তী →
+                </button>
+            </div>
+        </div>
+
+        
+        <!-- Bookmarked Questions Sidebar -->
+        <aside id="bookmark-sidebar" class="glass-card rounded-3xl p-4 border border-amber-500/20 lg:sticky lg:top-28">
+            <div class="flex items-center justify-between gap-2 mb-2">
+                <h2 class="text-base font-bold text-amber-300">★ বুকমার্ক করা প্রশ্ন</h2>
+                <span id="bookmark-count" class="text-xs font-bold text-amber-200 bg-amber-500/10 border border-amber-500/20 rounded-full px-2 py-1">0</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">গুরুত্বপূর্ণ বা ভুল হওয়া প্রশ্ন এখানে জমা থাকবে। যেকোনো প্রশ্নে চাপ দিলে সরাসরি সেখানে যেতে পারবেন।</p>
+            <div id="bookmark-list" class="space-y-2 max-h-[42vh] overflow-y-auto pr-1">
+                <p class="text-sm text-slate-500 py-3 text-center">এখনও কোনো প্রশ্ন বুকমার্ক করা হয়নি।</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-800">
+                <button onclick="exportBookmarks()" class="animated-btn px-2 py-2 rounded-xl text-xs font-semibold bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 border border-indigo-500/20">⬇ ব্যাকআপ</button>
+                <button onclick="document.getElementById('bookmark-import-input').click()" class="animated-btn px-2 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700">⬆ রিস্টোর</button>
+            </div>
+            <input id="bookmark-import-input" type="file" accept="application/json,.json" class="hidden" onchange="importBookmarks(event)">
+            <p class="text-[11px] text-slate-500 mt-2 leading-relaxed">অন্য ব্রাউজার বা ডিভাইসে নিতে ব্যাকআপ ডাউনলোড করে সেখানে রিস্টোর করুন।</p>
+        </aside>
+        </div>
+
+        <!-- Quiz Completion Results Screen -->
+        <div id="result-screen" class="hidden glass-card rounded-3xl p-6 md:p-10 text-center border border-slate-800 glow-emerald">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-4xl shadow-xl shadow-emerald-500/20 text-white">
+                🏆
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">কুইজ সম্পন্ন হয়েছে!</h2>
+            <p class="text-slate-400 text-sm mb-6">আপনার চূড়ান্ত ফলাফলের বিবরণ নিচে দেওয়া হলো</p>
+
+            <!-- Results Metrics -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+                <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+                    <span class="text-xs text-slate-400 block mb-1">মোট প্রশ্ন</span>
+                    <span id="res-total" class="text-2xl font-bold text-indigo-400">0</span>
+                </div>
+                <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+                    <span class="text-xs text-slate-400 block mb-1">সঠিক উত্তর</span>
+                    <span id="res-correct" class="text-2xl font-bold text-emerald-400">0</span>
+                </div>
+                <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+                    <span class="text-xs text-slate-400 block mb-1">ভুল উত্তর</span>
+                    <span id="res-wrong" class="text-2xl font-bold text-rose-400">0</span>
+                </div>
+                <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+                    <span class="text-xs text-slate-400 block mb-1">সাফল্যের হার</span>
+                    <span id="res-accuracy" class="text-2xl font-bold text-amber-400">0%</span>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex flex-wrap justify-center gap-3">
+                <button onclick="restartQuiz()" class="animated-btn px-6 py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/30">
+                    🔄 পুনরায় পরীক্ষা দিন
+                </button>
+                <button onclick="toggleReviewMode()" class="animated-btn px-6 py-3 rounded-xl font-bold text-sm bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700">
+                    📋 উত্তর পর্যালোচনা (Review)
+                </button>
+            </div>
+
+            <!-- Detailed Review Container -->
+            <div id="review-container" class="hidden mt-8 text-left space-y-4 pt-6 border-t border-slate-800">
+                <h3 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
+                    <span>📌</span> সকল প্রশ্নের বিস্তারিত পর্যালোচনা
+                </h3>
+                <div id="review-list" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                    <!-- Dynamic review list items -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="reset-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-card border border-slate-800 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl">
+            <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center text-xl font-bold">
+                ⚠️
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">কুইজ রিসেট করতে চান?</h3>
+            <p class="text-xs text-slate-400 mb-6">আপনার বর্তমান ফলাফল এবং উত্তরসমূহ মুছে পুনরায় শুরু হবে।</p>
+            <div class="flex gap-3 justify-center">
+                <button onclick="closeResetModal()" class="animated-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">
+                    বাতিল
+                </button>
+                <button onclick="executeReset()" class="animated-btn px-5 py-2.5 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/30">
+                    হ্যাঁ, রিসেট করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-4 border-t border-slate-800/80 text-center text-xs text-slate-500">
+       Content Of Tarek-Copyrighted
+    </footer>
+
+    <script>
+        // =========================================================================
+        // EXTRACTED PDF QUESTION BANK (questions 1-138)
+        // =========================================================================
+        const quizData = [{"id":1,"question":"মেসোস্ফিয়ারের উচ্চতা কত কি.মি. পর্যন্ত বিস্তৃত?","options":["5–10 km","10–40 km","50–100 km","150–200 km"],"correct":2,"fact":""},{"id":2,"question":"বায়ুমণ্ডলের স্ট্র্যাটোস্ফিয়ার স্তরের প্রধান উপাদান কোনটি?","options":["অক্সিজেন","নিয়ন","ওজোন","কার্বন ডাইঅক্সাইড"],"correct":2,"fact":""},{"id":3,"question":"বায়ুমণ্ডলের হোমোস্ফিয়ারে নিচের কোনটি থাকে না?","options":["আর্গন (Ar)","O₂","O","CH₄"],"correct":3,"fact":""},{"id":4,"question":"বায়ুমণ্ডলের কোন স্তরের তাপমাত্রা সর্বাপেক্ষা বেশি?","options":["ট্রপোস্ফিয়ার","স্ট্র্যাটোস্ফিয়ার","মেসোস্ফিয়ার","থার্মোস্ফিয়ার"],"correct":3,"fact":""},{"id":5,"question":"বায়ুমণ্ডলের শীতলতম অঞ্চল কোনটি?","options":["মেসোস্ফিয়ার","আয়নোস্ফিয়ার","ট্রপোস্ফিয়ার","স্ট্র্যাটোস্ফিয়ার"],"correct":0,"fact":""},{"id":6,"question":"ওজোনস্তর বায়ুমণ্ডলের কোন অঞ্চলে অবস্থিত?","options":["ট্রপোস্ফিয়ার","স্ট্র্যাটোস্ফিয়ার","মেসোস্ফিয়ার","থার্মোস্ফিয়ার"],"correct":1,"fact":""},{"id":7,"question":"বায়ুমণ্ডলের কোন অঞ্চলে ঝড়-ঝঞ্ঝার উৎপত্তি ঘটে?","options":["ট্রপোস্ফিয়ার","স্ট্র্যাটোস্ফিয়ার","মেসোস্ফিয়ার","থার্মোস্ফিয়ার"],"correct":0,"fact":""},{"id":8,"question":"সাইক্লোন তৈরি হতে সাগরের পানির তাপমাত্রায় সর্বনিম্ন কত থাকতে হয়?","options":["25°C","27°C","30°C","40°C"],"correct":1,"fact":""},{"id":9,"question":"নিচের কোন সমীকরণটি বয়েলের সূত্র প্রকাশ করে?","options":["P₁T₁ = P₂T₂","P₁/T₁ = P₂/T₂","P₁V₁ = P₂V₂","P₁/V₁ = P₂/V₂"],"correct":2,"fact":""},{"id":10,"question":"পার্শ্বের লেখচিত্রটি কোন সূত্রের জন্য প্রযোজ্য? (চিত্রের বিবরণ: PV-এর বিপরীতে P; T₁, T₂ ও T₃-এর জন্য তিনটি অনুভূমিক রেখা।)","options":["অ্যাভোগাড্রোর সূত্র","গ্রাহামের সূত্র","চার্লসের সূত্র","বয়েলের সূত্র"],"correct":3,"fact":""},{"id":11,"question":"পার্শ্বের লেখচিত্রটি কোন সূত্র সমর্থন করে? (চিত্রের বিবরণ: T ধ্রুব রেখে P ও V-এর মধ্যে বিপরীত সম্পর্কের বক্ররেখা।)","options":["চার্লসের সূত্র","বয়েলের সূত্র","অ্যাভোগাড্রোর সূত্র","গ্রাহামের সূত্র"],"correct":1,"fact":""},{"id":12,"question":"পার্শ্বের লেখচিত্রটি কোন গ্যাস সূত্রকে সমর্থন করে? (চিত্রের বিবরণ: V-এর বিপরীতে 1/P; T₁, T₂ ও T₃-এ সরলরেখা।)","options":["চার্লসের সূত্র","বয়েলের সূত্র","ডাল্টনের সূত্র","গে-লুসাকের সূত্র"],"correct":1,"fact":""},{"id":13,"question":"উদ্দীপকের লেখচিত্রটি কোন সূত্রের জন্য প্রযোজ্য? (চিত্রের বিবরণ: P ধ্রুব রেখে V-এর বিপরীতে তাপমাত্রার সরলরেখা।)","options":["বয়েলের সূত্র","গে-লুসাকের সূত্র","চার্লসের সূত্র","ডাল্টনের সূত্র"],"correct":2,"fact":""},{"id":14,"question":"কোনটি পরমশূন্য তাপমাত্রা?","options":["0°C","−273°C","25°C","273 K"],"correct":1,"fact":""},{"id":15,"question":"তাত্ত্বিকভাবে কোন তাপমাত্রায় গ্যাসের আয়তন শূন্য হয়?","options":["−270°C","−273°C","−100°C","−100 K"],"correct":1,"fact":""},{"id":16,"question":"আদর্শ গ্যাসের সমীকরণ কোনটি?","options":["PV = nRT","PV = ⅓mNc²","PV = RT","P₁V₁ = P₂V₂"],"correct":0,"fact":""},{"id":17,"question":"আদর্শ গ্যাসের গতীয় সমীকরণ কোনটি?","options":["PV = nRT","PV = ⅓mNc²","PV = RT","PV = P₁V₁"],"correct":1,"fact":""},{"id":18,"question":"SATP-তে কোনো গ্যাসের মোলার আয়তন কত?","options":["22.4 L","42.2 L","74.4 L","24.789 L"],"correct":3,"fact":""},{"id":19,"question":"STP-তে 1 mol SO₂ গ্যাসের আয়তন কত?","options":["22.4 L","24.789 L","224 L","22400 dm³"],"correct":0,"fact":""},{"id":20,"question":"গ্যাসের ঘনত্ব নির্ণয়ের সমীকরণ কোনটি?","options":["d = RM/PT","d = RT/PM","d = PM/RT","d = PT/RM"],"correct":2,"fact":""},{"id":21,"question":"L·atm এককে R-এর মান কোনটি?","options":["0.082 L·atm·mol⁻¹·K⁻¹","8.314 J·mol⁻¹·K⁻¹","8.32 × 10⁷ erg·mol⁻¹·K⁻¹","1.987 cal·mol⁻¹·K⁻¹"],"correct":0,"fact":""},{"id":22,"question":"SI এককে R-এর মান কোনটি?","options":["0.082 L·atm·mol⁻¹·K⁻¹","8.314 J·mol⁻¹·K⁻¹","8.32 × 10⁷ erg·mol⁻¹·K⁻¹","1.987 cal·mol⁻¹·K⁻¹"],"correct":1,"fact":""},{"id":23,"question":"C.G.S এককে R-এর মান কোনটি?","options":["8.316 erg·K⁻¹·mol⁻¹","8.316 × 10⁷ erg·mol⁻¹·K⁻¹","8.316 J·mol⁻¹·K⁻¹","8.316 × 10² erg·K⁻¹·mol⁻¹"],"correct":1,"fact":""},{"id":24,"question":"মোলার গ্যাস ধ্রুবক (R)-এর মাত্রা কোনটি?","options":["কাজ⁻¹ K⁻¹ mol⁻¹","কাজ K⁻¹ mol⁻¹","কাজ K⁻¹ mol","কাজ⁻¹ K mol⁻¹"],"correct":1,"fact":""},{"id":25,"question":"SI এককে বোল্টজম্যান ধ্রুবকের মান কত?","options":["6.023 × 10²³","6.023 × 10⁻²³","1.38 × 10⁻²³","1.36 × 10⁻²⁵"],"correct":2,"fact":""},{"id":26,"question":"1 atm কত প্যাসকেল?","options":["1.01325 × 10² Pa","1.01325 × 10⁻² Pa","1.01325 × 10⁵ Pa","1.01325 × 10⁻⁵ Pa"],"correct":2,"fact":""},{"id":27,"question":"স্থির তাপমাত্রায় গ্যাসের চাপ বাড়ালে ঘনত্বের মান কীরূপ হয়?","options":["বাড়ে","কমে","শূন্য হয়","অপরিবর্তিত থাকে"],"correct":0,"fact":""},{"id":28,"question":"18°C তাপমাত্রায় 0.8 atm চাপে কোনো গ্যাসের ঘনত্ব 2.25 g L⁻¹ হলে এর আণবিক ভর কত?","options":["67.11 g mol⁻¹","36.24 g mol⁻¹","24.36 g mol⁻¹","36.63 g mol⁻¹"],"correct":0,"fact":""},{"id":29,"question":"প্রমাণ অবস্থায় 1 mol গ্যাসের আয়তন কত?","options":["22.4 m³","22.4 × 10⁻³ m³","22400 cm³","22.4 × 10³ m³"],"correct":1,"fact":""},{"id":30,"question":"25°C তাপমাত্রায় কোনো গ্যাসের ক্ষেত্রে চাপ 1 atm হলে 1/V-এর মান 0.05 L⁻¹ হয়। 1/V-এর মান 0.042 L⁻¹ হলে চাপ (P)-এর মান কত হবে?","options":["0.05 atm","20 atm","0.035 atm","0.84 atm"],"correct":3,"fact":""},{"id":31,"question":"A ও B গ্যাসের মোল সংখ্যা যথাক্রমে 10 ও 30-এর মিশ্রণের মোট চাপ 12 atm হলে A গ্যাসের আংশিক চাপ কত হবে?","options":["3.0 atm","9 atm","16 atm","48 atm"],"correct":0,"fact":""},{"id":32,"question":"বায়ুমণ্ডলে N₂-এর আংশিক চাপ কত?","options":["1.0 atm","0.78 atm","0.21 atm","0.14 atm"],"correct":1,"fact":""},{"id":33,"question":"1.032 g অক্সিজেন ও 0.573 g CO₂-এর মিশ্রণে CO₂-এর মোল ভগ্নাংশ কত?","options":["0.713","0.8323","0.287","0.1677"],"correct":2,"fact":""},{"id":34,"question":"সমভরের CH₄ ও H₂-কে শূন্যপাত্রে 25°C-এ রাখা হলো। H₂-এর আংশিক চাপ মোট চাপের ভগ্নাংশ কোনটি?","options":["1/2","1/9","8/9","16/17"],"correct":2,"fact":""},{"id":35,"question":"উদ্দীপক: স্টপকক খোলার পর মোট চাপ P = 200 mmHg; nA = 6 mol এবং nB = 14 mol। A গ্যাসের আংশিক চাপ কত হবে?","options":["60 mmHg","80 mmHg","120 mmHg","140 mmHg"],"correct":0,"fact":""},{"id":36,"question":"STP-তে 3.2 g একটি গ্যাস 2.24 L আয়তন দখল করলে গ্যাসটি হতে পারে কোনটি?","options":["CO","CO₂","N₂","O₂"],"correct":3,"fact":""},{"id":37,"question":"0.5 mol N₂ এবং 0.3 mol O₂ একত্রে মেশানো হলো। O₂-এর মোল ভগ্নাংশ কত?","options":["0.089","0.215","0.317","0.375"],"correct":3,"fact":""},{"id":38,"question":"6 mol O₂ এবং 14 mol N₂ একত্রে মেশানো হলো। মিশ্রিত গ্যাসের চাপ 200 mmHg হলে O₂-এর আংশিক চাপ কত?","options":["50 mmHg","55 mmHg","60 mmHg","65 mmHg"],"correct":2,"fact":""},{"id":39,"question":"গ্যাসের ব্যাপন হারের সঙ্গে সম্পর্ক আছে কোনটির?","options":["তুল্যভরের","পারমাণবিক ভরের","আণবিক ভরের","গ্রাম-আণবিক ভরের"],"correct":2,"fact":""},{"id":40,"question":"25 cm কাচনলের ১ম মুখে HCl ও ২য় মুখে NH₃ গ্যাস একসঙ্গে ঢুকলে NH₄Cl-এর সাদা ধোঁয়া সৃষ্টি হয় কোথায়?","options":["নলের মাঝখানে","১ম মুখ থেকে 15 cm ভেতরে","১ম মুখ থেকে 10 cm ভেতরে","12 cm ভেতরে"],"correct":2,"fact":""},{"id":41,"question":"নিচের কোনটি গ্রাহামের ব্যাপন সূত্র?","options":["r₁√M₁ = r₂√M₂","r ∝ 1/M","r₁/r₂ = √(M₁/M₂)","r ∝ √M"],"correct":0,"fact":""},{"id":42,"question":"নিচের কোন গ্যাসটির ব্যাপন হার বেশি?","options":["HCl","NH₃","CH₄","Cl₂"],"correct":2,"fact":""},{"id":43,"question":"একই শর্তাধীন নিচের কোন গ্যাসটি ব্যাপিত হতে অধিক সময় লাগবে?","options":["SO₂","CO₂","HCl","NH₃"],"correct":0,"fact":""},{"id":44,"question":"নিচের কোন গ্যাসটির ব্যাপন হার সর্বাধিক?","options":["NH₃","CH₄","N₂","CO"],"correct":1,"fact":""},{"id":45,"question":"নিচের কোন গ্যাসটির ব্যাপন হার সর্বাধিক?","options":["CO₂","O₂","H₂","NH₃"],"correct":2,"fact":""},{"id":46,"question":"কোনটির ব্যাপন হার বেশি?","options":["NH₃","C₂H₆","CO₂","O₂"],"correct":0,"fact":""},{"id":47,"question":"কোন গ্যাসদ্বয়ের ব্যাপন হার সমান?","options":["N₂ ও CO","C₂H₄ ও O₂","N₂ ও O₂","CO₂ ও O₂"],"correct":0,"fact":""},{"id":48,"question":"27°C তাপমাত্রায় কোন গ্যাসটির RMS গতিবেগ বেশি?","options":["N₂","H₂","O₂","Cl₂"],"correct":1,"fact":""},{"id":49,"question":"STP-তে O₂ গ্যাসের RMS বেগ কত?","options":["46.134 m s⁻¹","461.34 m s⁻¹","561.34 m s⁻¹","600.5 m s⁻¹"],"correct":1,"fact":""},{"id":50,"question":"27°C তাপমাত্রায় O₂-এর RMS বেগ কত?","options":["453.23 m s⁻¹","463.34 m s⁻¹","473.45 m s⁻¹","483.56 m s⁻¹"],"correct":3,"fact":""},{"id":51,"question":"স্থির তাপমাত্রায় RMS বেগের সঠিক ক্রম কোনটি?","options":["H₂ > N₂ > CO₂","CO₂ > N₂ > H₂","N₂ > CO₂ > H₂","N₂ > H₂ > CO₂"],"correct":0,"fact":""},{"id":52,"question":"কোন গ্যাসটি দ্রুত ব্যাপিত হবে?","options":["ফ্লোরিন","অক্সিজেন","নিয়ন","ক্লোরিন"],"correct":2,"fact":""},{"id":53,"question":"1 mol গ্যাসের গতিশক্তি কোনটি?","options":["3RT/(2Nₐ)","3nRT/2","3R/2","3RT/2"],"correct":3,"fact":""},{"id":54,"question":"17°C তাপমাত্রায় এক মোল N₂-এর গতিশক্তি কত?","options":["3606.59 J","3616.59 J","5936.16 J","5916.36 J"],"correct":1,"fact":""},{"id":55,"question":"কক্ষতাপমাত্রায় N₂-এর 1টি অণুর গতিশক্তি কত আর্গ?","options":["6.209 × 10⁻²⁰","6.580 × 10⁻¹⁸","6.098 × 10⁻⁴","6.17 × 10⁻¹⁴"],"correct":0,"fact":""},{"id":56,"question":"কক্ষতাপমাত্রায় N₂-এর 1টি অণুর গতিশক্তি হয় কত?","options":["617.13 × 10²³ J","617.13 × 10⁻²³ J","671.13 × 10⁻²³ J","671.13 × 10²³ J"],"correct":1,"fact":""},{"id":57,"question":"29°C তাপমাত্রায় 3.0 g N₂-এর মোট গতিশক্তি কত?","options":["403 J","806 J","831 J","1612 J"],"correct":0,"fact":""},{"id":58,"question":"দুটি গ্যাসের গড় গতিশক্তি কখন সমান হয়?","options":["চাপ সমান","আণবিক ভর সমান","তাপমাত্রা সমান","আয়তন সমান"],"correct":2,"fact":""},{"id":59,"question":"44 g CO₂-এর জন্য আদর্শ গ্যাস সমীকরণ কোনটি?","options":["PV = RT","PV = 4RT","PV = 2RT","2PV = RT"],"correct":0,"fact":""},{"id":60,"question":"8.0 g He গ্যাসের জন্য আদর্শ গ্যাস সমীকরণ কোনটি?","options":["PV = nRT","PV = RT","PV = 2RT","2PV = RT"],"correct":2,"fact":""},{"id":61,"question":"4.0 g H₂ গ্যাসের জন্য আদর্শ সমীকরণ কোনটি?","options":["PV = nRT","PV = RT","PV = 2RT","PV = 4RT"],"correct":2,"fact":""},{"id":62,"question":"4.0 g He গ্যাসের জন্য ভ্যানডার ওয়ালস সমীকরণ কোনটি?","options":["(P + a/V²)(V − b) = RT","(P + 2a²/V²)(V − 2b) = 3RT","(P + 4a/V²)(V − 2b) = 2RT","(P + 2a/V²)(V − 2b) = 2RT"],"correct":0,"fact":""},{"id":63,"question":"28.0 g N₂ গ্যাসের জন্য ভ্যানডার ওয়ালস সমীকরণ কোনটি?","options":["(P + 4a/V²)(V − 2b) = 2RT","(P + n²a/V²)(V − nb) = nRT","(P + a/V²)(V − b) = RT","(P + a/V²)(V − b) = nRT"],"correct":2,"fact":""},{"id":64,"question":"ভ্যানডার ওয়ালস সমীকরণের ধ্রুবক a দ্বারা কী বোঝায়?","options":["গ্যাসের গতিশক্তি","আন্তঃআণবিক আকর্ষণ","গ্যাসের আয়তন","আন্তঃআণবিক বিকর্ষণ"],"correct":1,"fact":""},{"id":65,"question":"কোন শর্তে একটি বাস্তব গ্যাস আদর্শ গ্যাসের মতো আচরণ করে?","options":["উচ্চ তাপমাত্রা ও নিম্নচাপে","উচ্চ তাপমাত্রা ও উচ্চচাপে","নিম্ন তাপমাত্রা ও উচ্চচাপে","নিম্ন তাপমাত্রা ও নিম্নচাপে"],"correct":0,"fact":""},{"id":66,"question":"আদর্শ গ্যাসের সংকোচনশীলতা গুণাঙ্ক Z-এর মান কোনটি?","options":["3.0","2.0","1.0","0.5"],"correct":2,"fact":""},{"id":67,"question":"নিচের কোন গ্যাসটির সংকোচনশীলতা গুণাঙ্ক Z > 1 হয়?","options":["H₂","Cl₂","CO₂","NH₃"],"correct":0,"fact":""},{"id":68,"question":"নিচের কোন গ্যাসটির সংকোচনশীলতা গুণাঙ্ক Z < 1 হয়?","options":["H₂","He","CH₄","Ne"],"correct":2,"fact":""},{"id":69,"question":"CNG স্টেশনে ব্যবহৃত প্রাকৃতিক গ্যাসে মিথেনের পরিমাণ কত?","options":["79%","88%","90%","96%"],"correct":3,"fact":""},{"id":70,"question":"বজ্রপাতের সময় বায়ুমণ্ডলের কোন গ্যাসটি সক্রিয় হয়?","options":["CO₂","N₂","H₂","Ar"],"correct":1,"fact":""},{"id":71,"question":"বজ্রপাতের সময় যেকোনো স্থানের বায়ুমণ্ডলে কোন এসিডটি উৎপন্ন হয়?","options":["H₂SO₄","HClO₃","H₃PO₄","HNO₃"],"correct":3,"fact":""},{"id":72,"question":"নিচের কোনটি প্রাইমারি দূষক?","options":["SO₃","N₂O₅","NO","HNO₃"],"correct":2,"fact":""},{"id":73,"question":"নিচের কোনটি সেকেন্ডারি দূষক?","options":["CO₂","CO","SO₂","O₃"],"correct":3,"fact":""},{"id":74,"question":"ফটোকেমিক্যাল স্মগ তৈরিতে কোন বায়ুদূষক ভূমিকা রাখে না?","options":["হাইড্রোকার্বন","NO₂","O₃","CFC"],"correct":3,"fact":""},{"id":75,"question":"গ্রিনহাউস গ্যাসসমূহের মধ্যে নিচের কোনটি বায়ুমণ্ডলে সবচেয়ে বেশি থাকে?","options":["CH₄","CO₂","O₃","CFC"],"correct":1,"fact":""},{"id":76,"question":"নিচের কোনটি গ্রিনহাউস গ্যাস হিসেবে অধিক দায়ী?","options":["CFC","CO₂","CH₄","O₃"],"correct":1,"fact":""},{"id":77,"question":"বায়ুমণ্ডলে তাপমাত্রা বৃদ্ধিতে কোন গ্যাসটির ভূমিকা সবচেয়ে বেশি?","options":["CO₂","NO₂","CH₄","NH₃"],"correct":0,"fact":""},{"id":78,"question":"বৈশ্বিক উষ্ণতা সৃষ্টিতে প্রধান ভূমিকা রাখে কোনটি?","options":["CO₂","CFC","জলীয়বাষ্প","ওজোন"],"correct":0,"fact":""},{"id":79,"question":"ফ্রিয়ন-12-এর সংকেত কোনটি?","options":["CF₃Cl","CCl₃F","CCl₂F₂","F₂ClC–CClF₂"],"correct":3,"fact":""},{"id":80,"question":"ওজোন ক্ষয় করে কোনটি?","options":["CF₂Cl₂","HCl","HFC","HCFC"],"correct":0,"fact":""},{"id":81,"question":"এসিড বৃষ্টির বেলায় অধঃক্ষেপণ বৃষ্টিতে pH মান কত থাকে?","options":["5.2","6.5","6.1","2.7"],"correct":0,"fact":""},{"id":82,"question":"এসিড বৃষ্টির জন্য দায়ী কোনটি?","options":["O₂","CO","CO₂","SO₂"],"correct":3,"fact":""},{"id":83,"question":"কোন এসিডটি বেশি তীব্র এসিড?","options":["CH₃COOH","CH₃CH₂COOH","CH₃CH₂CH₂COOH","HCOOH"],"correct":3,"fact":""},{"id":84,"question":"HCO₃⁻-এর অনুবন্ধী ক্ষারক কোনটি?","options":["H₂CO₃","CO","CO₃²⁻","CO₂"],"correct":2,"fact":""},{"id":85,"question":"সবচেয়ে তীব্র এসিডের pKₐ-এর মান কোনটি?","options":["1","2","3","4"],"correct":0,"fact":""},{"id":86,"question":"নিচের কোন জোড়া লুইস এসিড?","options":["H₂O ও AlCl₃","AlCl₃ ও BCl₃","BF₃ ও NH₃","NH₃ ও AlCl₃"],"correct":1,"fact":""},{"id":87,"question":"কোনটি দ্বিক্ষারক এসিড?","options":["HNO₃","HNO₂","H₂SO₄","H₂SO₃"],"correct":2,"fact":""},{"id":88,"question":"লুইস এসিডের উদাহরণ কোনটি?","options":["AlCl₃","H₂SO₄","H₂O","NH₃"],"correct":0,"fact":""},{"id":89,"question":"NO₂⁻-এর অনুবন্ধী এসিড কোনটি?","options":["HNO₃","HNO₂","HNO₂⁻","NO₃⁻"],"correct":1,"fact":""},{"id":90,"question":"নিচের কোনটি লুইস ক্ষারক?","options":["AlCl₃","CO","FeCl₃","SO₃"],"correct":1,"fact":""},{"id":91,"question":"HCO₃⁻ + H₂O ⇌ উৎপাদ; এ বিক্রিয়ায় H₂O-এর অনুবন্ধী অম্ল কোনটি?","options":["HCO₃⁻","H₂CO₃","CO₃²⁻","H₃O⁺"],"correct":3,"fact":""},{"id":92,"question":"H₂CO₃ + H₂O ⇌ HCO₃⁻ + H₃O⁺; এ বিক্রিয়ার অনুবন্ধী অম্ল জোড় কোনটি?","options":["H₂CO₃, HCO₃⁻","H₃O⁺, H₂CO₃","H₃O⁺, H₂O","H₂O, HCO₃⁻"],"correct":1,"fact":""},{"id":93,"question":"H₂CO₃ + H₂O ⇌ HCO₃⁻ + H₃O⁺; এ বিক্রিয়ায় H₂CO₃-এর অনুবন্ধী ক্ষারক কোনটি?","options":["HCO₃⁻","H₂CO₃","H₃O⁺","H₂O"],"correct":0,"fact":""},{"id":94,"question":"NH₃ + HCl ⇌ NH₄⁺ + Cl⁻; এ বিক্রিয়ায় অনুবন্ধী অম্ল কোনটি?","options":["NH₃","Cl⁻","HCl","NH₄⁺"],"correct":3,"fact":""},{"id":95,"question":"বাংলাদেশে মিঠা পানির প্রধান উৎস কোনটি?","options":["সমুদ্রের পানি","ভূগর্ভস্থ পানি","নদীর পানি","পুকুরের পানি"],"correct":1,"fact":""},{"id":96,"question":"একটি পুকুরের পানির DO-এর মান 4.0 হলে পানিটি হবে কোনটি?","options":["বিশুদ্ধ পানি","দূষিত পানি","মৃদু পানি","খর পানি"],"correct":0,"fact":""},{"id":97,"question":"মাঝে মাঝে পুকুরের মাছ পানির ওপরের অংশে হাঁ করে শ্বাস নেয়। এ অবস্থার কারণ কী?","options":["পানির pH-এর মান 7-এর বেশি","পানিতে DO-এর মান খুব কম","পানির TDS-এর মান কম","পানির খরতার মান বেশি"],"correct":1,"fact":""},{"id":98,"question":"কোন ধরনের দূষক পানির DO-এর মান হ্রাস করে?","options":["অজৈব দূষক","জৈব দূষক","তেজস্ক্রিয় দূষক","কণাজাতীয় দূষক"],"correct":1,"fact":""},{"id":99,"question":"কৃষিকাজে সারফেস ওয়াটারের উপযুক্ততার মানদণ্ড কোনটি?","options":["TDS","pH-এর মান","COD","BOD"],"correct":1,"fact":""},{"id":100,"question":"CO₂-এর দুটি প্রধান সিংক (Sink) নিচের কোনটি?","options":["উদ্ভিদ ও বাতাস","সমুদ্র ও উদ্ভিদ","বনভূমি ও মাটি","উদ্ভিদ ও জীবাশ্ম জ্বালানি"],"correct":1,"fact":""},{"id":101,"question":"বাংলাদেশে পানীয় জলে আর্সেনিকের গ্রহণযোগ্য মাত্রা কত?","options":["0.10 ppm","0.05 ppm","0.05 g/L","0.01 ppm"],"correct":1,"fact":""},{"id":102,"question":"WHO-এর নির্দেশনা মতে পানিতে আর্সেনিকের নিরাপদ মাত্রা কত?","options":["0.01 ppm","0.04 ppm","0.05 ppm","0.06 ppm"],"correct":0,"fact":""},{"id":103,"question":"WHO-এর মতে পানিতে আর্সেনিকের সর্বোচ্চ সহনীয় মাত্রা কত ppm?","options":["0.05 ppm","0.01 ppm","0.005 ppm","0.001 ppm"],"correct":0,"fact":""},{"id":104,"question":"বায়ুতে H₂S-এর কত ppm মাত্রা মানুষের মৃত্যু ঘটাতে পারে?","options":["20 ppm","30 ppm","40 ppm","50 ppm"],"correct":3,"fact":""},{"id":105,"question":"CO-এর সহনীয় মাত্রা কত?","options":["40 ppm","0.15 ppm","500 ppm","1000 ppm"],"correct":1,"fact":""},{"id":106,"question":"মানব শরীরে নিচের কোন ধাতুর আয়নের আধিক্যে রক্তে হিমোগ্লোবিন উৎপাদন বাধাপ্রাপ্ত হয়?","options":["Cd","Cr","Fe","As"],"correct":1,"fact":""},{"id":107,"question":"মানব শরীরে কোন ভারী ধাতুর আয়নের কারণে ব্ল্যাক-ফুট ডিজিজ হয়?","options":["Pb","As","Cd","Cr"],"correct":1,"fact":""},{"id":108,"question":"মানব শরীরে কোন ধাতুর আয়নের আধিক্যের কারণে হাড় ভঙ্গুর বা অস্টিওপোরোসিস রোগ হয়?","options":["As³⁺","Cr³⁺","Pb²⁺","Cd²⁺"],"correct":3,"fact":""},{"id":109,"question":"কোন ভারী ধাতুর আয়নের পানীয় জল দূষণের কারণে শিশুর বুদ্ধিবৃত্তি বা IQ হ্রাস পায়?","options":["As³⁺","Cr³⁺","Pb²⁺","Cd²⁺"],"correct":2,"fact":""},{"id":110,"question":"কোন অবস্থায় বাস্তব গ্যাস বয়েলের সূত্র মেনে চলে?","options":["নিম্ন তাপমাত্রায়","0°C তাপমাত্রায়","কক্ষতাপমাত্রায়","উচ্চ তাপমাত্রায়"],"correct":3,"fact":""},{"id":111,"question":"অ্যাভোগাড্রো সূত্রের গাণিতিক রূপ কোনটি?","options":["P ∝ T (n, V স্থির)","V ∝ 1/P (n, T স্থির)","V ∝ T (n, P স্থির)","V ∝ n (P, T স্থির)"],"correct":3,"fact":""},{"id":112,"question":"গে-লুসাকের চাপের সূত্রের গাণিতিক রূপ কোনটি?","options":["V ∝ n (P, T স্থির)","P ∝ T (n, V স্থির)","V ∝ T (n, P স্থির)","V ∝ 1/P (n, T স্থির)"],"correct":1,"fact":""},{"id":113,"question":"নির্দিষ্ট ভরের কোনো গ্যাসের চাপ অর্ধেকে হ্রাস ও তাপমাত্রা দ্বিগুণ করা হলে আয়তন কত হবে?","options":["পূর্বের সমান","পূর্বের দ্বিগুণ","এক-চতুর্থাংশ","কোনোটিই নয়"],"correct":3,"fact":""},{"id":114,"question":"স্থির তাপমাত্রায় ও 1 atm চাপে নির্দিষ্ট ভরের অক্সিজেন গ্যাসের আয়তন 3.15 L হয়। 2.5 atm চাপে এ গ্যাসের আয়তন কত হবে?","options":["1.62 L","2.16 L","6.21 L","1.26 L"],"correct":3,"fact":""},{"id":115,"question":"নিচের কোন সূত্রটি আদর্শ গ্যাসের জন্য গুরুত্বপূর্ণ নয়?","options":["গে-লুসাকের সূত্র","রাউল্টের সূত্র","গ্রাহামের সূত্র","অ্যাভোগাড্রোর সূত্র"],"correct":1,"fact":""},{"id":116,"question":"নিচের কোন সমীকরণটি গ্যাসের গতিতত্ত্ব থেকে উদ্ভূত?","options":["c = √(3R/M)","PV = 2K/3","v = √(8R/M)","PV = ⅓mNc²"],"correct":3,"fact":""},{"id":117,"question":"ভ্যানডার ওয়ালস সমীকরণে ধ্রুবক a-এর সাথে সম্পর্কযুক্ত কোনটি?","options":["আন্তঃআণবিক আকর্ষণ","আন্তঃআণবিক বিকর্ষণ","অণুসমূহের প্রকৃত আয়তন","এক্ষেত্রে (খ) ও (গ) উভয়েই"],"correct":0,"fact":""},{"id":118,"question":"বোল্টজম্যান ধ্রুবকের একক কোনটি?","options":["J·(molecule)⁻¹","J·s","J·K⁻¹","g·cm⁻¹"],"correct":0,"fact":""},{"id":119,"question":"300 K তাপমাত্রায় বাতাসের N₂ অণুর RMS বেগ কত?","options":["450 m s⁻¹","516 m s⁻¹","400 m s⁻¹","600 m s⁻¹"],"correct":1,"fact":""},{"id":120,"question":"নিচের কোনটি ওজোনস্তর ধ্বংসের জন্য দায়ী নয়?","options":["UV-রশ্মি","CFC-12","Cl","CO"],"correct":3,"fact":""},{"id":121,"question":"নিচের কোন যৌগটি ফ্রিয়ন-12 নামে পরিচিত?","options":["CF₂Cl₂","CFCl₃","CHF₂Cl","CHFCl₂"],"correct":0,"fact":""},{"id":122,"question":"ফটোকেমিক্যাল স্মগ তৈরিতে কোন বায়ুদূষক ভূমিকা রাখে না?","options":["NO₂","CFC","হাইড্রোকার্বন","O₃"],"correct":1,"fact":""},{"id":123,"question":"কোনটিকে নীরব ঘাতক বলা হয়?","options":["CO","SO₂","KMnO₄","NH₃"],"correct":0,"fact":""},{"id":124,"question":"নিচের কোনটি লুইস এসিড?","options":["HNO₃","H₂SO₄","AlCl₃","NH₃"],"correct":2,"fact":""},{"id":125,"question":"তাপমাত্রার সঙ্গে গ্যাসের আয়তনের পরিবর্তন হয় কোন সূত্রে?","options":["বয়েলের সূত্র","চার্লসের সূত্র","ডাল্টনের আংশিক চাপ সূত্র","গ্রাহামের ব্যাপন সূত্র"],"correct":1,"fact":""},{"id":126,"question":"উদ্দীপক: (i) HCl + HCO₃⁻ ⇌ H₂CO₃ + Cl⁻; (ii) HCO₃⁻ + H₂O ⇌ H₃O⁺ + CO₃²⁻। উদ্দীপক অনুসারে উভধর্মী পদার্থ কোনটি?","options":["HCl","H₂O","HCO₃⁻","CO₃²⁻"],"correct":2,"fact":""},{"id":127,"question":"নিচের কোনটি লুইস এসিড?","options":["NH₃","AlCl₃","H₂O","C₂H₄"],"correct":1,"fact":""},{"id":128,"question":"FGD প্ল্যান্টের মাধ্যমে কোনটি দূর করা যায় না?","options":["SOₓ","NOₓ","CO₂","CO"],"correct":3,"fact":""},{"id":129,"question":"নিচের কোন মানটি দূষিত পানির নির্দেশক?","options":["pH মান 6.4–7.4","DO মান 6 mg L⁻¹","BOD মান 2 mg L⁻¹","COD মান 100 mg L⁻¹"],"correct":3,"fact":""},{"id":130,"question":"STP-তে 1.0 L গ্যাসের ভর 1.43 g হলে গ্যাসটি হবে কোনটি?","options":["H₂","O₂","N₂","Cl₂"],"correct":1,"fact":""},{"id":131,"question":"He-এর উৎক্রম তাপমাত্রা কত?","options":["240°C","80°C","−80°C","−240°C"],"correct":3,"fact":""},{"id":132,"question":"Vₜ = (V₀ + V₀ × t/273) সমীকরণে V₀/273-কে কী বলা হয়?","options":["তাপ প্রসারণাঙ্ক","আয়তন প্রসারণাঙ্ক","পরম আয়তন","পরম তাপমাত্রা"],"correct":1,"fact":""},{"id":133,"question":"হাইড্রোকার্বন দূষকযুক্ত বায়ুকে দূষকমুক্ত করতে নিচের কোন মাধ্যমে চালনা করা উচিত?","options":["এসিড","ক্ষার","তেল","পানি"],"correct":2,"fact":""},{"id":134,"question":"পানির অস্থায়ী খরতার জন্য দায়ী কোনটি?","options":["SO₄²⁻","CO₃²⁻","Cl⁻","HCO₃⁻"],"correct":3,"fact":""},{"id":135,"question":"অ্যামাগা বক্ররেখার মূলভিত্তি কোনটি?","options":["V ∝ 1/P","V ∝ T","V ∝ 1/√d","P ∝ T"],"correct":0,"fact":""},{"id":136,"question":"অনুবন্ধী অম্ল-ক্ষারক যুগলের মধ্যে পার্থক্য কী?","options":["1টি H পরমাণু","1টি H⁺ আয়ন","1 অণু পানি","1টি OH⁻ আয়ন"],"correct":1,"fact":""},{"id":137,"question":"WHO কর্তৃক অনুমোদিত পানীয় জলের pH মাত্রা কত?","options":["3.5–6.4","6.5–8.5","7.5–9.4","9.5–10.5"],"correct":1,"fact":""},{"id":138,"question":"CO₂ গ্যাসের সংকটচাপ কত atm?","options":["31.1","72.9","76","760"],"correct":1,"fact":""}];
+
+        let currentQuestionIdx = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        // Bookmarks are saved in this browser automatically. Use backup/restore to transfer them.
+        const BOOKMARK_STORAGE_KEY = 'chem_c01_environment_bookmarks_v1';
+        const BOOKMARK_QUIZ_KEY = 'chem_c01_environment';
+        const BOOKMARK_QUIZ_TITLE = 'পরিবেশ রসায়ন (C-01)';
+        let bookmarkedQuestionIds = loadBookmarkedQuestionIds();
+
+        function loadBookmarkedQuestionIds() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(BOOKMARK_STORAGE_KEY) || '[]');
+                if (!Array.isArray(saved)) return [];
+                const validIds = new Set(quizData.map(q => q.id));
+                return [...new Set(saved.map(Number).filter(id => Number.isInteger(id) && validIds.has(id)))];
+            } catch (error) {
+                console.warn('Could not load saved bookmarks:', error);
+                return [];
+            }
+        }
+
+        function saveBookmarkedQuestionIds() {
+            try {
+                localStorage.setItem(BOOKMARK_STORAGE_KEY, JSON.stringify(bookmarkedQuestionIds));
+                return true;
+            } catch (error) {
+                alert('এই ব্রাউজারে বুকমার্ক স্বয়ংক্রিয়ভাবে সংরক্ষণ করা যায়নি। ব্যাকআপ ডাউনলোড করে রাখুন।');
+                console.error('Could not save bookmarks:', error);
+                return false;
+            }
+        }
+
+        function toggleCurrentBookmark() {
+            const question = quizData[currentQuestionIdx];
+            if (!question) return;
+            if (bookmarkedQuestionIds.includes(question.id)) {
+                bookmarkedQuestionIds = bookmarkedQuestionIds.filter(id => id !== question.id);
+            } else {
+                bookmarkedQuestionIds.push(question.id);
+            }
+            saveBookmarkedQuestionIds();
+            updateBookmarkUI();
+        }
+
+        function updateBookmarkUI() {
+            const question = quizData[currentQuestionIdx];
+            const button = document.getElementById('bookmark-current-btn');
+            if (button && question) {
+                const saved = bookmarkedQuestionIds.includes(question.id);
+                button.textContent = saved ? '★ বুকমার্ক করা হয়েছে' : '☆ বুকমার্ক করুন';
+                button.setAttribute('aria-pressed', String(saved));
+                button.className = saved
+                    ? 'animated-btn px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold bg-amber-500/20 text-amber-200 hover:bg-amber-500/30 border border-amber-400/50'
+                    : 'animated-btn px-3 py-1.5 rounded-xl text-xs md:text-sm font-semibold bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 border border-amber-500/30';
+            }
+
+            const list = document.getElementById('bookmark-list');
+            const count = document.getElementById('bookmark-count');
+            if (!list || !count) return;
+            count.textContent = bookmarkedQuestionIds.length;
+            list.innerHTML = '';
+            if (bookmarkedQuestionIds.length === 0) {
+                const empty = document.createElement('p');
+                empty.className = 'text-sm text-slate-500 py-3 text-center';
+                empty.textContent = 'এখনও কোনো প্রশ্ন বুকমার্ক করা হয়নি।';
+                list.appendChild(empty);
+                return;
+            }
+
+            bookmarkedQuestionIds
+                .map(id => quizData.find(q => q.id === id))
+                .filter(Boolean)
+                .sort((a, b) => a.id - b.id)
+                .forEach(q => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'w-full text-left p-3 rounded-xl bg-slate-900/70 hover:bg-amber-500/10 border border-slate-800 hover:border-amber-500/40 transition-colors';
+                    const number = document.createElement('span');
+                    number.className = 'block text-xs font-bold text-amber-300 mb-1';
+                    number.textContent = '★ প্রশ্ন ' + q.id;
+                    const text = document.createElement('span');
+                    text.className = 'block text-sm text-slate-200 leading-relaxed';
+                    text.textContent = q.question;
+                    btn.append(number, text);
+                    btn.addEventListener('click', () => jumpToQuestion(quizData.findIndex(item => item.id === q.id)));
+                    list.appendChild(btn);
+                });
+        }
+
+        function exportBookmarks() {
+            const backup = {
+                version: 1,
+                quizKey: BOOKMARK_QUIZ_KEY,
+                quiz: BOOKMARK_QUIZ_TITLE,
+                exportedAt: new Date().toISOString(),
+                bookmarks: bookmarkedQuestionIds
+            };
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Environment-C01-bookmarks-backup.json';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function importBookmarks(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const data = JSON.parse(String(reader.result || ''));
+                    if (!Array.isArray(data)) {
+                        if ((data.quizKey && data.quizKey !== BOOKMARK_QUIZ_KEY) ||
+                            (data.quiz && data.quiz !== BOOKMARK_QUIZ_TITLE)) {
+                            throw new Error('Backup belongs to another quiz');
+                        }
+                    }
+                    const ids = Array.isArray(data) ? data : data.bookmarks;
+                    if (!Array.isArray(ids)) throw new Error('Invalid bookmark backup format');
+                    const validIds = new Set(quizData.map(q => q.id));
+                    const imported = ids.map(Number).filter(id => Number.isInteger(id) && validIds.has(id));
+                    bookmarkedQuestionIds = [...new Set([...bookmarkedQuestionIds, ...imported])];
+                    saveBookmarkedQuestionIds();
+                    updateBookmarkUI();
+                    alert(imported.length + 'টি বুকমার্ক রিস্টোর করা হয়েছে। আগের বুকমার্কগুলোও রাখা হয়েছে।');
+                } catch (error) {
+                    alert('এই অধ্যায়ের সঠিক bookmark backup JSON ফাইল নির্বাচন করুন। অন্য অধ্যায়ের ব্যাকআপ নেওয়া যাবে না।');
+                    console.error('Could not import bookmarks:', error);
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // DOM Element Caching
+        const questionBadge = document.getElementById('question-badge');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const rationaleBox = document.getElementById('rationale-box');
+        const rationaleTitle = document.getElementById('rationale-title');
+        const rationaleText = document.getElementById('rationale-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const navGrid = document.getElementById('nav-grid');
+
+        const statTotal = document.getElementById('stat-total');
+        const statAnswered = document.getElementById('stat-answered');
+        const statScore = document.getElementById('stat-score');
+        const progressBar = document.getElementById('progress-bar');
+        const completionTag = document.getElementById('completion-tag');
+
+        function initQuiz() {
+            statTotal.innerText = quizData.length;
+            userAnswers = new Array(quizData.length).fill(null);
+            buildNavigatorGrid();
+            if (quizData.length > 0) {
+                renderQuestion(0);
+            } else {
+                questionText.innerText = "দয়া করে কোডে নতুন কুইজ প্রশ্ন যুক্ত করুন।";
+            }
+            updateStats();
+        }
+
+        function buildNavigatorGrid() {
+            navGrid.innerHTML = '';
+            quizData.forEach((item, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `nav-btn-${idx}`;
+                btn.innerText = item.id;
+                btn.onclick = () => jumpToQuestion(idx);
+                btn.className = `w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all border ${getNavBtnClass(idx)}`;
+                navGrid.appendChild(btn);
+            });
+        }
+
+        function getNavBtnClass(idx) {
+            if (idx === currentQuestionIdx) {
+                return "bg-indigo-600 text-white border-indigo-400 ring-2 ring-indigo-500/50 shadow-md";
+            }
+            if (userAnswers[idx] !== null) {
+                const isCorrect = userAnswers[idx] === quizData[idx].correct;
+                return isCorrect 
+                    ? "bg-emerald-950/80 text-emerald-400 border-emerald-800" 
+                    : "bg-rose-950/80 text-rose-400 border-rose-800";
+            }
+            return "bg-slate-900/80 text-slate-400 border-slate-800 hover:bg-slate-800";
+        }
+
+        function updateNavigator() {
+            quizData.forEach((_, idx) => {
+                const btn = document.getElementById(`nav-btn-${idx}`);
+                if (btn) {
+                    btn.className = `w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all border ${getNavBtnClass(idx)}`;
+                }
+            });
+        }
+
+        function renderQuestion(idx) {
+            if (quizData.length === 0) return;
+            currentQuestionIdx = idx;
+            const item = quizData[idx];
+
+            questionBadge.innerText = `প্রশ্ন ${item.id} (ক্রমিক ${idx + 1} / ${quizData.length})`;
+            questionText.innerText = item.question;
+
+            optionsContainer.innerHTML = '';
+            const userAns = userAnswers[idx];
+
+            const optionPrefixes = ['ক', 'খ', 'গ', 'ঘ'];
+
+            item.options.forEach((optText, optIdx) => {
+                const btn = document.createElement('button');
+                btn.onclick = () => selectOption(optIdx);
+
+                let btnStyle = "bg-slate-900/60 hover:bg-slate-800/80 border-slate-800 text-slate-200";
+
+                if (userAns !== null) {
+                    if (optIdx === item.correct) {
+                        btnStyle = "bg-emerald-950/50 border-emerald-500/80 text-emerald-200 font-medium";
+                    } else if (optIdx === userAns) {
+                        btnStyle = "bg-rose-950/50 border-rose-500/80 text-rose-200";
+                    } else {
+                        btnStyle = "bg-slate-950/30 border-slate-900 text-slate-500 opacity-50";
+                    }
+                }
+
+                btn.className = `w-full text-left p-4 rounded-2xl border text-sm md:text-base transition-all duration-200 flex items-center justify-between group ${btnStyle}`;
+                
+                btn.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-xl border border-slate-700 bg-slate-900/80 flex items-center justify-center text-xs font-bold text-slate-400 flex-shrink-0 group-hover:border-indigo-500 transition-colors">
+                            ${optionPrefixes[optIdx]}
+                        </span>
+                        <span>${optText}</span>
+                    </div>
+                    ${userAns !== null && optIdx === item.correct ? '<span class="text-emerald-400 font-bold text-base">✓</span>' : ''}
+                    ${userAns !== null && optIdx === userAns && optIdx !== item.correct ? '<span class="text-rose-400 font-bold text-base">✕</span>' : ''}
+                `;
+
+                if (userAns !== null) {
+                    btn.disabled = true;
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            if (userAns !== null) {
+                rationaleBox.classList.remove('hidden');
+                const isCorrect = userAns === item.correct;
+                if (isCorrect) {
+                    rationaleBox.className = "mb-6 p-4 rounded-2xl border border-emerald-500/30 bg-emerald-950/30 text-emerald-300 text-sm";
+                    rationaleTitle.innerHTML = "<span class='text-emerald-400'>✓ সঠিক উত্তর!</span>";
+                } else {
+                    rationaleBox.className = "mb-6 p-4 rounded-2xl border border-rose-500/30 bg-rose-950/30 text-rose-300 text-sm";
+                    rationaleTitle.innerHTML = "<span class='text-rose-400'>✕ ভুল উত্তর! সঠিক উত্তর হলো: " + optionPrefixes[item.correct] + "</span>";
+                }
+                rationaleText.innerText = item.fact;
+            } else {
+                rationaleBox.classList.add('hidden');
+            }
+
+            prevBtn.disabled = idx === 0;
+            if (idx === quizData.length - 1) {
+                nextBtn.innerText = "ফলাফল দেখুন 🏆";
+            } else {
+                nextBtn.innerText = "পরবর্তী →";
+            }
+
+            updateNavigator();
+            updateBookmarkUI();
+        }
+
+        function selectOption(optIdx) {
+            if (userAnswers[currentQuestionIdx] !== null) return;
+
+            userAnswers[currentQuestionIdx] = optIdx;
+            renderQuestion(currentQuestionIdx);
+            updateStats();
+
+            const answeredCount = userAnswers.filter(a => a !== null).length;
+            if (answeredCount === quizData.length) {
+                setTimeout(showResults, 1200);
+            }
+        }
+
+        function navigateQuestion(direction) {
+            const newIdx = currentQuestionIdx + direction;
+            if (newIdx >= 0 && newIdx < quizData.length) {
+                renderQuestion(newIdx);
+            } else if (newIdx >= quizData.length) {
+                showResults();
+            }
+        }
+
+        function jumpToQuestion(idx) {
+            renderQuestion(idx);
+        }
+
+        function updateStats() {
+            const answered = userAnswers.filter(a => a !== null).length;
+            let score = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === quizData[idx].correct) score++;
+            });
+
+            statAnswered.innerText = answered;
+            statScore.innerText = score;
+
+            const percentage = quizData.length > 0 ? Math.round((answered / quizData.length) * 100) : 0;
+            progressBar.style.width = `${percentage}%`;
+            completionTag.innerText = `${percentage}% সম্পন্ন`;
+        }
+
+        function showResults() {
+            document.getElementById('quiz-card').classList.add('hidden');
+            document.getElementById('stats-strip').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const total = quizData.length;
+            let correct = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === quizData[idx].correct) correct++;
+            });
+            const wrong = userAnswers.filter(a => a !== null).length - correct;
+            const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+            document.getElementById('res-total').innerText = total;
+            document.getElementById('res-correct').innerText = correct;
+            document.getElementById('res-wrong').innerText = wrong;
+            document.getElementById('res-accuracy').innerText = `${accuracy}%`;
+
+            buildReviewList();
+        }
+
+        function buildReviewList() {
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+            const optionPrefixes = ['ক', 'খ', 'গ', 'ঘ'];
+
+            quizData.forEach((q, idx) => {
+                const userAns = userAnswers[idx];
+                const isCorrect = userAns === q.correct;
+                const isUnanswered = userAns === null;
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `p-4 rounded-2xl border text-sm ${
+                    isCorrect 
+                        ? 'bg-emerald-950/20 border-emerald-800/60' 
+                        : isUnanswered 
+                        ? 'bg-slate-900/40 border-slate-800' 
+                        : 'bg-rose-950/20 border-rose-800/60'
+                }`;
+
+                itemDiv.innerHTML = `
+                    <div class="font-bold text-slate-200 mb-1 leading-snug">
+                        প্রশ্ন ${q.id}: ${q.question}
+                    </div>
+                    <div class="text-xs text-slate-400 mb-2">
+                        আপনার উত্তর: <span class="${isCorrect ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}">${userAns !== null ? optionPrefixes[userAns] + '. ' + q.options[userAns] : 'উত্তর দেওয়া হয়নি'}</span>
+                        | সঠিক উত্তর: <span class="text-emerald-400 font-semibold">${optionPrefixes[q.correct]}. ${q.options[q.correct]}</span>
+                    </div>
+                    <div class="text-xs bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-indigo-300">
+                        💡 <strong>ব্যাখ্যা:</strong> ${q.fact}
+                    </div>
+                `;
+
+                reviewList.appendChild(itemDiv);
+            });
+        }
+
+        function toggleReviewMode() {
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.classList.toggle('hidden');
+        }
+
+        function confirmReset() {
+            document.getElementById('reset-modal').classList.remove('hidden');
+        }
+
+        function closeResetModal() {
+            document.getElementById('reset-modal').classList.add('hidden');
+        }
+
+        function executeReset() {
+            userAnswers = new Array(quizData.length).fill(null);
+            currentQuestionIdx = 0;
+
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('review-container').classList.add('hidden');
+            document.getElementById('quiz-card').classList.remove('hidden');
+            document.getElementById('stats-strip').classList.remove('hidden');
+
+            closeResetModal();
+            buildNavigatorGrid();
+            renderQuestion(0);
+            updateStats();
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
